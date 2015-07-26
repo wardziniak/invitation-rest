@@ -1,4 +1,4 @@
-name := """simple-rest-scala"""
+name := """inviation-rest"""
 
 version := "1.0-SNAPSHOT"
 
