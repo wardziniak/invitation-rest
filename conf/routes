@@ -3,7 +3,7 @@
 # ~~~~
 
 # Home page
-GET     /invitation         controllers.Application.invitationsList
-POST    /invitation         controllers.Application.saveInvitation
+GET     /invitation         @controllers.Application.invitationsList1
+POST    /invitation         @controllers.Application.saveInvitation2
 
 

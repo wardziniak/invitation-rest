@@ -1,27 +1,34 @@
 package model
 
-
+import com.evojam.mongodb.client.MongoClient
+import com.evojam.mongodb.play.json._
+import com.google.inject.{Inject, Singleton}
+import play.api.Play.current
+import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api.libs.json._
-import play.api.libs.functional.syntax._
+
+import scala.concurrent.Future
+
 
 /**
  * Created by wardziniak on 26.07.15.
  */
+case class Invitee(invitee: String, email: String)
+
 object Invitee {
+  implicit val format = Json.format[Invitee]
+}
 
-  case class Invitee(name: String, email: String)
+@Singleton
+class InviteeDao @Inject()(mongo: MongoClient) {
 
-  var invitees = List(Invitee("Ludwig von Mises", "ludwig.mises@test.pl"), Invitee("Frédéric Bastiat", "frederic.bastiat@test.pl"))
+  val collectionName = current.configuration.getString("invitees.collection.default.name").getOrElse("invitees")
 
-  def addInvitee(invitee: Invitee) = invitees = invitees ::: List(invitee)
+  def getInvitee(): Future[List[Invitee]] = {
+    mongo.database().collection(collectionName).find().collect[Invitee]
+  }
 
-  implicit val inviteeWriters: Writes[Invitee] = (
-    (__ \ "invitee").write[String] and
-      (__ \ "email").write[String]
-    ) (unlift(Invitee.unapply))
-
-  implicit val inviteeReaders: Reads[Invitee] = (
-    (__ \ "invitee").read[String] and
-      (__ \ "email").read[String]
-    ) (Invitee.apply _)
+  def saveInvitee(invitee: Invitee) = {
+    mongo.database().collection(collectionName).insert(invitee)
+  }
 }
